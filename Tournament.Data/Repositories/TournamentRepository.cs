@@ -19,28 +19,27 @@ public class TournamentRepository(TournamentApiContext context) : RepositoryBase
 
     public async Task<IEnumerable<TournamentDetails>> GetAllAsync(bool includeGames = false, bool trackChanges = false)
     {
-        return includeGames ? await GetAll().Include(t => t.Games).ToListAsync()
-                            : await GetAll().ToListAsync();
+        return includeGames ? await GetAll(trackChanges).Include(t => t.Games).ToListAsync()
+                            : await GetAll(trackChanges).ToListAsync();
     }
 
     public async Task<TournamentDetails?> GetAsync(int id, bool trackChanges = false)
     {
-        return await GetWithCondition(t => t.Id.Equals(id)).FirstOrDefaultAsync();
+        return await GetWithCondition(t => t.Id.Equals(id), trackChanges).FirstOrDefaultAsync();
     }
 
-    public void Add(TournamentDetails tournamentDetails)
-    {
-        Create(tournamentDetails);
-    }
+    //public void Add(TournamentDetails tournamentDetails)
+    //{
+    //    Create(tournamentDetails);
+    //}
 
-    public void Remove(TournamentDetails tournamentDetails)
-    {
-        Delete(tournamentDetails);
-    }
+    //public void Remove(TournamentDetails tournamentDetails)
+    //{
+    //    Delete(tournamentDetails);
+    //}
 
-    public void Update(TournamentDetails tournamentDetails)
-    {
-
-        //Update(tournamentDetails);
-    }
+    //public void Update(TournamentDetails tournamentDetails)
+    //{
+    //    //Update(tournamentDetails);
+    //}
 }

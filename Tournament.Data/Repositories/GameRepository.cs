@@ -22,24 +22,28 @@ public class GameRepository(TournamentApiContext context) : RepositoryBase<Game>
         return await GetWithCondition(g => g.TournamentId.Equals(tournamentId), trackChanges).ToListAsync();
     }
 
+    public async Task<IEnumerable<Game>> GetGamesByTitleAsync(string title, bool trackChanges = false)
+    {
+        return await GetWithCondition(g => g.Title.ToLower().Contains(title.ToLower()), trackChanges).ToListAsync();
+    }
+
     public async Task<Game?> GetGameAsync(int tournamentId, int gameId, bool trackChanges = false)
     {
         return await GetWithCondition(g => g.Id.Equals(gameId) && g.TournamentId.Equals(tournamentId), trackChanges).FirstOrDefaultAsync();
     }
 
-    public void Add(Game tournamentDetails)
+    public void Create(Game tournamentDetails)
     {
         Create(tournamentDetails);
     }
 
-    public void Remove(Game tournamentDetails)
+    public void Delete(Game tournamentDetails)
     {
         Delete(tournamentDetails);
     }
 
     public void Update(Game tournamentDetails)
     {
-
         //Update(tournamentDetails);
     }
 }

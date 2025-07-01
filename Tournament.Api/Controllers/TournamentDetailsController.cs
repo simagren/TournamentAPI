@@ -22,14 +22,18 @@ public class TournamentDetailsController(TournamentApiContext _context, IMapper 
     private readonly IMapper mapper = _mapper;
     private readonly UnitOfWork unitOfWork = new(_context);
 
+
+
     // GET: api/TournamentDetails
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TournamentDetails>>> GetTournamentDetails(bool includeGames)
+    public async Task<ActionResult<IEnumerable<TournamentDto>>> GetTournamentDetails(bool includeGames)
     {
         var tournaments = await unitOfWork.TournamentRepository.GetAllAsync(includeGames);
         var tournamentDto = mapper.Map<IEnumerable<TournamentDto>>(tournaments);
         return Ok(tournamentDto);
     }
+
+
 
     // GET: api/TournamentDetails/5
     [HttpGet("{id}")]
@@ -42,6 +46,8 @@ public class TournamentDetailsController(TournamentApiContext _context, IMapper 
 
         return mapper.Map<TournamentDto>(tournamentDetails);
     }
+
+
 
     // PUT: api/TournamentDetails/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -86,7 +92,7 @@ public class TournamentDetailsController(TournamentApiContext _context, IMapper 
     public async Task<ActionResult<TournamentDetails>> PostTournamentDetails(TournamentCreateDto tournamentDto)
     {
         var tournament = mapper.Map<TournamentDetails>(tournamentDto);
-        unitOfWork.TournamentRepository.Add(tournament);
+        unitOfWork.TournamentRepository.Create(tournament);
         await unitOfWork.CompleteAsync();
         var createdTournament = mapper.Map<TournamentDto>(tournament);
         return CreatedAtAction(nameof(GetTournamentDetails), new { id = tournament.Id }, createdTournament);
@@ -105,7 +111,7 @@ public class TournamentDetailsController(TournamentApiContext _context, IMapper 
         if (tournament == null)
             return NotFound("Tournament not found");
 
-        unitOfWork.TournamentRepository.Remove(tournament);
+        unitOfWork.TournamentRepository.Delete(tournament);
         await unitOfWork.CompleteAsync();
         return NoContent();
 
@@ -122,11 +128,28 @@ public class TournamentDetailsController(TournamentApiContext _context, IMapper 
         //return NoContent();
     }
 
-    [HttpPatch("tournamentId")]
+    [HttpPatch("{id:int}")]
     public async Task<ActionResult<TournamentDto>>PatchTournament(int id, 
-        JsonPatchDocument<TournamentDto> patchDocument)
+        JsonPatchDocument<TournamentUpdateDto> patchDocument)
     {
+        if (patchDocument is null)
+            return BadRequest("No patchdocument");
 
+        var tournamentToPatch = await unitOfWork.TournamentRepository.GetAsync(id, true);
+        if (tournamentToPatch == null)
+            return NotFound("Tournament does not exist");
+
+        var dto = mapper.Map<TournamentUpdateDto>(tournamentToPatch);
+        patchDocument.ApplyTo(dto, ModelState);
+        TryValidateModel(dto);
+
+        if (!ModelState.IsValid)
+            return UnprocessableEntity(ModelState);
+
+        mapper.Map(dto, tournamentToPatch);
+        await unitOfWork.CompleteAsync();
+
+        return NoContent();
     }
 
 

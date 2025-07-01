@@ -10,9 +10,10 @@ namespace Tournament.Core.Repositories;
 public interface IGameRepository
 {
     Task<IEnumerable<Game>> GetGamesAsync(int tournamentId, bool trackChanges = false);
+    Task<IEnumerable<Game>> GetGamesByTitleAsync(string title, bool trackChanges = false);
     Task<Game?> GetGameAsync(int tournamentId, int gameId, bool trackChanges = false);
     Task<bool> AnyAsync(int id);
-    void Add(Game tournamentDetails);
+    void Create(Game tournamentDetails);
     void Update(Game tournamentDetails);
-    void Remove(Game tournamentDetails);
+    void Delete(Game tournamentDetails);
 }

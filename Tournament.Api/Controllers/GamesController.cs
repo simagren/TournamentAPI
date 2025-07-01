@@ -53,6 +53,18 @@ public class GamesController(TournamentApiContext _context, IMapper _mapper) : C
     }
 
 
+    [HttpGet("search")]
+    public async Task<ActionResult<GameDto>> GetGame(string title)
+    {
+        var games = await unitOfWork.GameRepository.GetGamesByTitleAsync(title);
+        if(!games.Any())
+            return NotFound("No games containing that title");
+
+        var gameDto = mapper.Map<IEnumerable<GameDto>>(games);
+        return Ok(gameDto);
+    }
+
+
 
     // PUT: api/Games/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -87,7 +99,7 @@ public class GamesController(TournamentApiContext _context, IMapper _mapper) : C
         var game = mapper.Map<Game>(gameDto);
         game.TournamentId = tournamentId;
 
-        unitOfWork.GameRepository.Add(game);
+        unitOfWork.GameRepository.Create(game);
         await unitOfWork.CompleteAsync();
 
         var createdGame = mapper.Map<GameDto>(game);
@@ -106,7 +118,7 @@ public class GamesController(TournamentApiContext _context, IMapper _mapper) : C
         if (game == null)
             return NotFound();
 
-        unitOfWork.GameRepository.Remove(game);
+        unitOfWork.GameRepository.Delete(game);
         await unitOfWork.CompleteAsync();
 
         return NoContent();

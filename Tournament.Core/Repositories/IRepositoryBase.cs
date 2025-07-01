@@ -9,7 +9,7 @@ namespace Tournament.Core.Repositories;
 
 public interface IRepositoryBase<T>
 {
-    IQueryable<T> GetAll();
+    IQueryable<T> GetAll(bool trackChanges);
     IQueryable<T> GetWithCondition(Expression<Func<T, bool>> condition, bool trackChanges);
     void Create(T entity);
     void Update(T entity);

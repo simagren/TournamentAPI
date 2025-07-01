@@ -31,14 +31,14 @@ public class RepositoryBase<T> : IRepositoryBase<T> where T : class
         DbSet.Remove(entity);
     }
 
-    public IQueryable<T> GetAll()
+    public IQueryable<T> GetAll(bool trackChanges = false)
     {
-        return DbSet;
+        return trackChanges ? DbSet : DbSet.AsNoTracking();
     }
 
     public IQueryable<T> GetWithCondition(Expression<Func<T, bool>> condition, bool trackChanges = false)
     {
-        return DbSet.Where(condition);
+        return trackChanges ? DbSet.Where(condition) : DbSet.Where(condition).AsNoTracking();
     }
 
     public void Update(T entity)
